@@ -63,18 +63,23 @@ end
 
 local function loadMapFile(mapfile)
   local content = assert(love.filesystem.read('map/' .. mapfile))
-  local data = parseIniContent(content)
+  local mapData = parseIniContent(content)
+
   local notes = {}
-  for _, hitObjectData in ipairs(data.HitObjects) do
+  for _, hitObjectData in ipairs(mapData.HitObjects) do
     local hitObject = parseHitObject(hitObjectData)
     local note = toManiaNote(hitObject)
     table.insert(notes, note)
   end
-  return { notes = notes }
+
+  return {
+    notes = notes
+  }
 end
 
 local map
 local songTime = 0
+local receptorPosition = 550
 
 function love.load()
   love.filesystem.createDirectory('maps')
@@ -101,14 +106,14 @@ function love.draw()
     love.graphics.setColor(255, 255, 255)
     for _, note in ipairs(map.notes) do
       local x = note.column * 64
-      local y = 500 - (note.time - songTime) * 100 * 20
+      local y = receptorPosition - (note.time - songTime) * 100 * 20
       if y > -32 and y < 800 then
         love.graphics.rectangle('fill', x, y, 64, 32)
       end
     end
 
     love.graphics.setColor(255, 255, 255, 120)
-    love.graphics.rectangle('fill', 0, 500, 64 * 4, 32)
+    love.graphics.rectangle('fill', 0, receptorPosition, 64 * 4, 32)
   end
 end
 
