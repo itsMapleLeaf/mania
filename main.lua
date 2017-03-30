@@ -1,6 +1,7 @@
 io.stdout:setvbuf('no')
 
 local inspect = require('inspect')
+local gameplay = require('gameplay')
 
 local function split(str, delimiter)
   local result = {}
@@ -75,13 +76,12 @@ local function loadMapFile(mapfile)
   }
 end
 
-local map
-local songTime = 0
-local receptorPosition = 550
+local state
 
 function love.load()
   love.filesystem.createDirectory('maps')
 
+  local map
   for _, mapfolder in ipairs(love.filesystem.getDirectoryItems('maps')) do
     if love.filesystem.mount('maps/' .. mapfolder, 'map') then
       for _, mapfile in ipairs(love.filesystem.getDirectoryItems('map')) do
@@ -91,38 +91,19 @@ function love.load()
         end
       end
       love.filesystem.unmount('maps/' .. mapfolder)
+      break
     end
   end
+
+  state = gameplay(map)
 end
 
 function love.update(dt)
-  songTime = songTime + dt
+  state:update(dt)
 end
 
 function love.draw()
-  local sh = love.graphics.getHeight()
-  if map then
-    for _, note in ipairs(map.notes) do
-      local x = note.column * 64
-      local y = receptorPosition - (note.time - songTime) * 100 * 20
-      if y > -32 and y < sh then
-        love.graphics.setColor(255, 255, 255)
-        love.graphics.rectangle('fill', x, y, 64, 32)
-      end
-
-      if note.length > 0 then
-        local height = note.length * 100 * 20 * -1
-
-        if y > 0 or y + height < sh then
-          love.graphics.setColor(255, 255, 255, 120)
-          love.graphics.rectangle('fill', x, y, 64, note.length * 100 * 20 * -1)
-        end
-      end
-    end
-
-    love.graphics.setColor(255, 255, 255, 120)
-    love.graphics.rectangle('fill', 0, receptorPosition, 64 * map.columns, 32)
-  end
+  state:draw()
 end
 
 function love.keypressed(key)
