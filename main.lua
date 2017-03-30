@@ -42,22 +42,21 @@ local function parseIniContent(content)
   return data
 end
 
-local function parseHitObject(line)
+local function parseNote(line)
   local chunks = split(line, ',')
-  local x, y, time, objectType = unpack(chunks)
-  return {
-    x = tonumber(x),
-    y = tonumber(y),
-    time = tonumber(time) / 1000,
-    type = objectType,
-  }
-end
+  local x, _, time, objectType = unpack(chunks)
+  local column = math.floor(x / 128)
+  local length = 0
 
-local function toManiaNote(hitObject)
-  local column = math.floor(hitObject.x / 128)
+  if objectType == '128' then
+    local holdEnd = chunks[6]:match('%d+')
+    length = tonumber(holdEnd) - time
+  end
+
   return {
-    time = hitObject.time,
+    time = tonumber(time) / 1000,
     column = column,
+    length = length / 1000,
   }
 end
 
@@ -67,12 +66,8 @@ local function loadMapFile(mapfile)
 
   local notes = {}
   for _, hitObjectData in ipairs(mapData.HitObjects) do
-    local hitObject = parseHitObject(hitObjectData)
-    local note = toManiaNote(hitObject)
-    table.insert(notes, note)
+    table.insert(notes, parseNote(hitObjectData))
   end
-
-  print(inspect(mapData))
 
   return {
     notes = notes,
@@ -105,13 +100,23 @@ function love.update(dt)
 end
 
 function love.draw()
+  local sh = love.graphics.getHeight()
   if map then
-    love.graphics.setColor(255, 255, 255)
     for _, note in ipairs(map.notes) do
       local x = note.column * 64
       local y = receptorPosition - (note.time - songTime) * 100 * 20
-      if y > -32 and y < 800 then
+      if y > -32 and y < sh then
+        love.graphics.setColor(255, 255, 255)
         love.graphics.rectangle('fill', x, y, 64, 32)
+      end
+
+      if note.length > 0 then
+        local height = note.length * 100 * 20 * -1
+
+        if y > 0 or y + height < sh then
+          love.graphics.setColor(255, 255, 255, 120)
+          love.graphics.rectangle('fill', x, y, 64, note.length * 100 * 20 * -1)
+        end
       end
     end
 
