@@ -1,6 +1,14 @@
+io.stdout:setvbuf('no')
+
 local inspect = require('inspect')
 
-io.stdout:setvbuf('no')
+local function split(str, delimiter)
+  local result = {}
+  for chunk in str:gmatch('[^' .. delimiter .. ']+') do
+    table.insert(result, chunk)
+  end
+  return result
+end
 
 local function parseIniContent(content)
   local data = {}
@@ -34,19 +42,78 @@ local function parseIniContent(content)
   return data
 end
 
+local function parseHitObject(line)
+  local chunks = split(line, ',')
+  local x, y, time, objectType = unpack(chunks)
+  return {
+    x = tonumber(x),
+    y = tonumber(y),
+    time = tonumber(time) / 1000,
+    type = objectType,
+  }
+end
+
+local function toManiaNote(hitObject)
+  local column = math.floor(hitObject.x / 128)
+  return {
+    time = hitObject.time,
+    column = column,
+  }
+end
+
+local function loadMapFile(mapfile)
+  local content = assert(love.filesystem.read('map/' .. mapfile))
+  local data = parseIniContent(content)
+  local notes = {}
+  for _, hitObjectData in ipairs(data.HitObjects) do
+    local hitObject = parseHitObject(hitObjectData)
+    local note = toManiaNote(hitObject)
+    table.insert(notes, note)
+  end
+  return { notes = notes }
+end
+
+local map
+local songTime = 0
+
 function love.load()
   love.filesystem.createDirectory('maps')
 
   for _, mapfolder in ipairs(love.filesystem.getDirectoryItems('maps')) do
-    assert(love.filesystem.mount('maps/' .. mapfolder, 'map'))
-    for _, mapfile in ipairs(love.filesystem.getDirectoryItems('map')) do
-      if mapfile:match('%.osu$') then
-        local content = assert(love.filesystem.read('map/' .. mapfile))
-        print(inspect(parseIniContent(content)))
-        break
+    if love.filesystem.mount('maps/' .. mapfolder, 'map') then
+      for _, mapfile in ipairs(love.filesystem.getDirectoryItems('map')) do
+        if mapfile:match('%.osu$') then
+          map = loadMapFile(mapfile)
+          break
+        end
       end
+      love.filesystem.unmount('maps/' .. mapfolder)
     end
   end
+end
 
-  love.event.quit()
+function love.update(dt)
+  songTime = songTime + dt
+end
+
+function love.draw()
+  if map then
+    love.graphics.setColor(255, 255, 255)
+    for _, note in ipairs(map.notes) do
+      local x = note.column * 64
+      local y = 500 - (note.time - songTime) * 100 * 20
+      if y > -32 and y < 800 then
+        love.graphics.rectangle('fill', x, y, 64, 32)
+      end
+    end
+
+    love.graphics.setColor(255, 255, 255, 120)
+    love.graphics.rectangle('fill', 0, 500, 64 * 4, 32)
+  end
+end
+
+function love.keypressed(key)
+  if key == 'escape' then
+    love.event.quit()
+  end
 end
