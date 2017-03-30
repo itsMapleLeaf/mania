@@ -65,6 +65,22 @@ local function loadMapFile(mapfile)
   }
 end
 
+local function extractOSZ(osz)
+  if love.filesystem.mount(osz, 'temp') then
+    local outputPath = osz:sub(1, -5)
+    love.filesystem.createDirectory(outputPath)
+
+    for _, file in ipairs(love.filesystem.getDirectoryItems('temp')) do
+      local content = love.filesystem.read('temp/' .. file)
+      love.filesystem.write(outputPath .. '/' .. file, content)
+    end
+
+    love.filesystem.unmount(osz)
+    love.filesystem.remove(osz)
+  end
+end
+
 return {
-  loadMapFile = loadMapFile
+  loadMapFile = loadMapFile,
+  extractOSZ = extractOSZ,
 }
