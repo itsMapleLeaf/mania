@@ -72,8 +72,11 @@ local function loadMapFile(mapfile)
     table.insert(notes, note)
   end
 
+  print(inspect(mapData))
+
   return {
-    notes = notes
+    notes = notes,
+    columns = tonumber(mapData.Difficulty.CircleSize),
   }
 end
 
@@ -113,7 +116,7 @@ function love.draw()
     end
 
     love.graphics.setColor(255, 255, 255, 120)
-    love.graphics.rectangle('fill', 0, receptorPosition, 64 * 4, 32)
+    love.graphics.rectangle('fill', 0, receptorPosition, 64 * map.columns, 32)
   end
 end
 
