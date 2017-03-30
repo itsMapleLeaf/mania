@@ -1,7 +1,7 @@
 io.stdout:setvbuf('no')
 
-local gameplay = require 'gameplay'
-local osu = require 'osu'
+local gameplay = require 'states.gameplay'
+local osu = require 'lib.osu'
 
 local state
 
