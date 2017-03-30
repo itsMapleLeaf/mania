@@ -7,6 +7,8 @@ local function parseIniContent(content)
   local currentSection = {}
 
   for line in content:gmatch('[^\r\n]+') do
+    -- capture a header
+    -- if one is found, set it as our current section to add onto
     local section = line:match('^%s*%[([^%]]+)%]%s*$')
     if section then
       data[section] = data[section] or {}
@@ -14,12 +16,16 @@ local function parseIniContent(content)
       goto continue
     end
 
+    -- capture a key/value pair
+    -- if one is found, assign it to the current section
     local name, value = line:match('^%s*(%a+)%s*:%s*(.*)$')
     if name and value then
       currentSection[name] = value
       goto continue
     end
 
+    -- if it's not a valid header or key/value pair, just add the line into
+    -- the section table
     table.insert(currentSection, line)
 
     ::continue::
