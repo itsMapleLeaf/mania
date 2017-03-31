@@ -2,6 +2,7 @@ io.stdout:setvbuf('no')
 
 local gameplay = require 'states.gameplay'
 local osu = require 'lib.osu'
+local util = require 'lib.util'
 
 local state
 
@@ -10,12 +11,12 @@ function love.load()
     love.filesystem.createDirectory('maps')
   end
 
-  for _, osz in ipairs(love.filesystem.getDirectoryItems('maps')) do
-    if osz:match('%.osz$') then
-      print('Extracting ' .. osz)
-      osu.extractOSZ(osz)
-    end
+  local function isOSZ(file)
+    return file:match('%.osz$')
   end
+
+  local oszFiles = util.filter(love.filesystem.getDirectoryItems('maps'), isOSZ)
+  util.map(oszFiles, osu.extractOSZ)
 
   local map
 
