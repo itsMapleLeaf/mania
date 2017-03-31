@@ -52,7 +52,7 @@ local function parseNote(line)
 end
 
 local function loadMapFile(mapfile)
-  local content = assert(love.filesystem.read('map/' .. mapfile))
+  local content = assert(love.filesystem.read(mapfile))
   local mapData = parseMapFile(content)
 
   local notes = {}
@@ -61,6 +61,8 @@ local function loadMapFile(mapfile)
   end
 
   return {
+    title = mapData.Metadata.Title,
+    artist = mapData.Metadata.Artist,
     notes = notes,
     columns = tonumber(mapData.Difficulty.CircleSize),
   }

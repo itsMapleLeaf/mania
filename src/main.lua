@@ -3,9 +3,8 @@ io.stdout:setvbuf('no')
 -- local gameplay = require 'states.gameplay'
 local osu = require 'lib.osu'
 local fsutil = require 'lib.fsutil'
+local gamestate = require 'lib.hump.gamestate'
 local mapselect = require 'states.mapselect'
-
-local state
 
 function love.load()
   if not love.filesystem.isDirectory('maps') then
@@ -20,15 +19,8 @@ function love.load()
     end
   end
 
-  state = mapselect()
-end
-
-function love.update(dt)
-  if state.update then state.update(dt) end
-end
-
-function love.draw()
-  if state.draw then state.draw() end
+  gamestate.registerEvents()
+  gamestate.switch(mapselect)
 end
 
 function love.keypressed(key)
