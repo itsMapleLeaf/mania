@@ -13,8 +13,10 @@ function love.load()
   end
 
   for _, file in ipairs(love.filesystem.getDirectoryItems('maps')) do
-    if fsutil.getExtension(file) == 'osz' then
-      osu.extractOSZ(file)
+    local path = 'maps/' .. file
+    if love.filesystem.isFile(path) and fsutil.getExtension(path) == 'osz' then
+      print('Extracting ' .. file)
+      osu.extractOSZ(path)
     end
   end
 
