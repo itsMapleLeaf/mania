@@ -80,7 +80,24 @@ local function extractOSZ(osz)
   end
 end
 
+local function loadMaps()
+  local maps = {}
+  for _, file in ipairs(love.filesystem.getDirectoryItems('maps')) do
+    local path = 'maps/' .. file
+    if love.filesystem.isDirectory(path) then
+      for _, mapFile in ipairs(love.filesystem.getDirectoryItems(path)) do
+        local mapFilePath = path .. '/' .. mapFile
+        if love.filesystem.isFile(mapFilePath) and mapFile:match('%.osu$') then
+          table.insert(maps, mapFilePath)
+        end
+      end
+    end
+  end
+  return maps
+end
+
 return {
-  loadMapFile = loadMapFile,
   extractOSZ = extractOSZ,
+  loadMapFile = loadMapFile,
+  loadMaps = loadMaps,
 }
