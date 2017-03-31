@@ -3,13 +3,12 @@ local scrollSpeed = 15
 
 return function (map)
   local songTime = 0
-  local state = {}
 
-  function state:update(dt)
+  local function update(dt)
     songTime = songTime + dt
   end
 
-  function state:draw()
+  local function draw()
     local sh = love.graphics.getHeight()
     if map then
       local noteScale = 100 * scrollSpeed
@@ -36,5 +35,5 @@ return function (map)
     end
   end
 
-  return state
+  return { update = update, draw = draw }
 end
