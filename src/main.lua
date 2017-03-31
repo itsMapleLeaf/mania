@@ -3,10 +3,9 @@ io.stdout:setvbuf('no')
 -- local gameplay = require 'states.gameplay'
 local osu = require 'lib.osu'
 local fsutil = require 'lib.fsutil'
+local mapselect = require 'states.mapselect'
 
--- local state
-
-local maps = {}
+local state
 
 function love.load()
   if not love.filesystem.isDirectory('maps') then
@@ -19,21 +18,15 @@ function love.load()
     end
   end
 
-  maps = osu.loadMaps()
-
-  -- state = gameplay(map)
+  state = mapselect()
 end
 
--- function love.update(dt)
---   -- state:update(dt)
--- end
+function love.update(dt)
+  if state.update then state.update(dt) end
+end
 
 function love.draw()
-  for i, map in ipairs(maps) do
-    local x = 10
-    local y = 10 + (i - 1) * 30
-    love.graphics.print(map, x, y)
-  end
+  if state.draw then state.draw() end
 end
 
 function love.keypressed(key)
