@@ -1,3 +1,6 @@
+-- local gamestate = require 'lib.hump.gamestate'
+-- local mapselect = require 'states.mapselect'
+
 local receptorPosition = 600
 local scrollSpeed = 15
 
@@ -7,6 +10,12 @@ function gameplay:enter(_, map)
   self.map = map
   self.songTime = 0
 end
+
+-- function gameplay:keypressed(key)
+  -- if key == 'escape' then
+  --   gamestate.switch(mapselect)
+  -- end
+-- end
 
 function gameplay:update(dt)
   self.songTime = self.songTime + dt

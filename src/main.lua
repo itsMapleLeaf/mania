@@ -22,9 +22,3 @@ function love.load()
   gamestate.registerEvents()
   gamestate.switch(mapselect)
 end
-
-function love.keypressed(key)
-  if key == 'escape' then
-    love.event.quit()
-  end
-end

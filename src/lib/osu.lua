@@ -33,10 +33,10 @@ local function parseMapFile(content)
   return data
 end
 
-local function parseNote(line)
+local function parseNote(line, columns)
   local chunks = util.split(line, ',')
   local x, _, time, objectType = unpack(chunks)
-  local column = math.floor(x / 128)
+  local column = math.floor(x / (512 / columns))
   local length = 0
 
   if objectType == '128' then
@@ -54,17 +54,20 @@ end
 local function loadMapFile(mapfile)
   local content = assert(love.filesystem.read(mapfile))
   local mapData = parseMapFile(content)
+  local columns = tonumber(mapData.Difficulty.CircleSize)
 
   local notes = {}
   for _, hitObjectData in ipairs(mapData.HitObjects) do
-    table.insert(notes, parseNote(hitObjectData))
+    table.insert(notes, parseNote(hitObjectData, columns))
   end
 
   return {
     title = mapData.Metadata.Title,
     artist = mapData.Metadata.Artist,
+    difficulty = mapData.Metadata.Version,
+    creator = mapData.Metadata.Creator,
     notes = notes,
-    columns = tonumber(mapData.Difficulty.CircleSize),
+    columns = columns,
   }
 end
 
