@@ -1,2 +1,2 @@
 cmd: 'love'
-args: ['.']
+args: ['$PROJECT_PATH/src']
