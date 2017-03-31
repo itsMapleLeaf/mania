@@ -2,6 +2,7 @@ io.stdout:setvbuf('no')
 
 -- local gameplay = require 'states.gameplay'
 local osu = require 'lib.osu'
+local fsutil = require 'lib.fsutil'
 
 -- local state
 
@@ -13,7 +14,7 @@ function love.load()
   end
 
   for _, file in ipairs(love.filesystem.getDirectoryItems('maps')) do
-    if file:match('%.osz$') then
+    if fsutil.getExtension(file) == 'osz' then
       osu.extractOSZ(file)
     end
   end

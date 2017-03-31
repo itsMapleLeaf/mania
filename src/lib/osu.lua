@@ -1,4 +1,5 @@
 local util = require 'lib.util'
+local fsutil = require 'lib.fsutil'
 
 local function parseMapFile(content)
   local data = {}
@@ -87,7 +88,8 @@ local function loadMaps()
     if love.filesystem.isDirectory(path) then
       for _, mapFile in ipairs(love.filesystem.getDirectoryItems(path)) do
         local mapFilePath = path .. '/' .. mapFile
-        if love.filesystem.isFile(mapFilePath) and mapFile:match('%.osu$') then
+        if love.filesystem.isFile(mapFilePath)
+        and fsutil.getExtension(mapFile) == 'osu' then
           table.insert(maps, mapFilePath)
         end
       end
